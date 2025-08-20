@@ -1,6 +1,6 @@
 # Machine Setup
 
-Automated macOS development environment setup using Homebrew and shell scripts.
+Automated macOS development environment setup using Homebrew and shell scripts with dependency-aware execution order and consistent error handling.
 
 ## Quick Start
 
@@ -10,27 +10,32 @@ cd machine-setup
 ./setup.sh
 ```
 
-## What Gets Installed
+## Installation Architecture
 
-The `setup.sh` script runs these installation scripts:
+The `setup.sh` script executes all installation scripts in optimized dependency order:
 
-- **`brew.sh`** - Installs Homebrew package manager
-- **`ghostty.sh`** - Installs Ghostty terminal emulator
-- **`raycast.sh`** - Installs Raycast launcher/productivity tool
-- **`go.sh`** - Installs Go programming language
-- **`github-cli.sh`** - Installs GitHub CLI (`gh` command)
-- **`karabiner-elements.sh`** - Installs Karabiner Elements keyboard customizer
+### **1. Foundation**
+- **`brew.sh`** - Homebrew package manager (required by most tools)
 
-### Optional Scripts (commented out)
-- **`node.sh`** - Installs Node.js
-- **`nvm.sh`** - Installs Node Version Manager
-- **`zellij.sh`** - Installs Zellij terminal multiplexer
+### **2. Programming Languages & Runtimes**
+- **`node.sh`** - Node.js + npm via Homebrew
+- **`nvm.sh`** - Node Version Manager for version flexibility
+- **`go.sh`** - Go programming language
 
-### Additional Tools
-- **`neovim.sh`** - Installs Neovim + dependencies (ripgrep, fzf, lazygit) + config
-- **`claude-code.sh`** - Installs Claude Code CLI
-- **`open-code.sh`** - Installs OpenCode TUI
-- **`cursor.sh`** - Installs Cursor editor
+### **3. System & Productivity Tools**
+- **`karabiner-elements.sh`** - Keyboard customizer (Karabiner Elements)
+- **`raycast.sh`** - Launcher and productivity tool
+
+### **4. Terminal & Editors**
+- **`ghostty.sh`** - Modern terminal emulator
+- **`cursor.sh`** - AI-powered code editor
+- **`neovim.sh`** - Neovim + dev tools (ripgrep, fzf, lazygit) + personal config
+- **`zellij.sh`** - Terminal multiplexer
+
+### **5. CLI Tools** 
+- **`github-cli.sh`** - GitHub CLI (`gh` command)
+- **`claude-code.sh`** - Claude Code CLI (requires npm)
+- **`open-code.sh`** - OpenCode TUI
 
 ## Individual Installation
 
@@ -38,12 +43,37 @@ Run any script independently:
 ```bash
 ./go.sh          # Install just Go
 ./ghostty.sh     # Install just Ghostty
+./neovim.sh      # Install Neovim ecosystem
 ```
 
-## Logging
+## Script Features
 
-All scripts use colored logging via `colors.sh` with standardized output:
-- 🔵 `[INFO]` - Installation progress
-- 🟡 `[WARNING]` - Already installed
-- 🟢 `[SUCCESS]` - Installation complete
+All installation scripts follow standardized patterns:
+
+### **Consistent Logging**
+- 🔵 `[INFO]` - Installation progress and script status  
+- 🟡 `[WARNING]` - Tool already installed (skipped)
+- 🟢 `[SUCCESS]` - Installation completed successfully
 - 🔴 `[ERROR]` - Installation failed
+
+### **Smart Installation Checks**
+- **Homebrew formulas**: `brew list <package>` verification
+- **Homebrew casks**: `brew list --cask <package>` verification
+- **Pre-installation detection** prevents unnecessary reinstalls
+- **Post-installation verification** confirms success
+
+### **Error Handling**
+- Graceful handling of existing installations
+- Clear feedback on installation success/failure
+- Standardized exit codes and error reporting
+
+## Repository Structure
+
+```
+machine-setup/
+├── setup.sh              # Main orchestration script
+├── colors.sh            # Shared logging functions
+├── AGENTS.md            # Guidelines for AI agents
+├── README.md            # This documentation
+└── [tool-name].sh       # Individual installation scripts
+```
