@@ -13,6 +13,8 @@ find . -name "*.sh" -type f -exec chmod +x {} \;
 ./ghostty.sh
 ./raycast.sh
 ./go.sh
+./github-cli.sh
+./karabiner-elements.sh
 # ./node.sh
 # ./nvm.sh
 # ./zellij.sh

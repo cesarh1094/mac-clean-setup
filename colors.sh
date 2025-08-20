@@ -26,3 +26,9 @@ log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+
+# Indented logging functions (for sub-scripts)
+log_info_sub() { echo -e "    ${BLUE}[INFO]${NC} $1"; }
+log_success_sub() { echo -e "    ${GREEN}[SUCCESS]${NC} $1"; }
+log_warning_sub() { echo -e "    ${YELLOW}[WARNING]${NC} $1"; }
+log_error_sub() { echo -e "    ${RED}[ERROR]${NC} $1"; }
