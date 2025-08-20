@@ -15,6 +15,7 @@ find . -name "*.sh" -type f -exec chmod +x {} \;
 # Programming languages and runtimes
 ./node.sh
 ./nvm.sh
+./bun.sh
 ./go.sh
 
 # System and productivity tools

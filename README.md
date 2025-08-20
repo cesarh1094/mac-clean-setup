@@ -20,6 +20,7 @@ The `setup.sh` script executes all installation scripts in optimized dependency 
 ### **2. Programming Languages & Runtimes**
 - **`node.sh`** - Node.js + npm via Homebrew
 - **`nvm.sh`** - Node Version Manager for version flexibility
+- **`bun.sh`** - Bun JavaScript runtime and package manager
 - **`go.sh`** - Go programming language
 
 ### **3. System & Productivity Tools**
