@@ -10,7 +10,7 @@ if brew list neovim >/dev/null 2>&1; then
 else
   log_info_sub "Installing Neovim"
   brew install neovim
-  
+
   if brew list neovim >/dev/null 2>&1; then
     log_success_sub "✅ Neovim installed successfully!"
   else
@@ -30,9 +30,13 @@ if brew list lazygit >/dev/null 2>&1; then
 else
   log_info_sub "Installing Lazygit"
   brew install lazygit
-  
+
   if brew list lazygit >/dev/null 2>&1; then
     log_success_sub "✅ Lazygit installed successfully!"
+
+    log_info_sub "Load general lazygit config"
+
+    lazygit -c
   else
     log_error_sub "❌ Lazygit installation failed"
   fi
@@ -44,7 +48,7 @@ if brew list ripgrep >/dev/null 2>&1; then
 else
   log_info_sub "Installing Ripgrep"
   brew install ripgrep
-  
+
   if brew list ripgrep >/dev/null 2>&1; then
     log_success_sub "✅ Ripgrep installed successfully!"
   else
@@ -58,7 +62,7 @@ if brew list fzf >/dev/null 2>&1; then
 else
   log_info_sub "Installing FZF"
   brew install fzf
-  
+
   if brew list fzf >/dev/null 2>&1; then
     log_success_sub "✅ FZF installed successfully!"
   else
@@ -70,7 +74,7 @@ fi
 if [ ! -d ~/.config/nvim ]; then
   log_info_sub "Cloning Neovim config"
   git clone https://github.com/cesarh1094/config.nvim.git ~/.config/nvim
-  
+
   if [ -d ~/.config/nvim ]; then
     log_success_sub "✅ Neovim config cloned successfully!"
   else
