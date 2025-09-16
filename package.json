@@ -1,0 +1,20 @@
+{
+  "name": "machine-setup-tui",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "description": "SolidJS + OpenTUI wrapper for scripts/",
+  "scripts": {
+    "dev": "tsx index.tsx",
+    "setup": "bash scripts/setup.sh"
+  },
+  "dependencies": {
+    "@opentui/core": "latest",
+    "@opentui/solid": "latest",
+    "solid-js": "latest"
+  },
+  "devDependencies": {
+    "tsx": "latest"
+  }
+}
+

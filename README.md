@@ -7,7 +7,7 @@ Automated macOS development environment setup using Homebrew and shell scripts w
 ```bash
 git clone <this-repo>
 cd machine-setup
-./setup.sh
+bash scripts/setup.sh
 ```
 
 ## Installation Architecture
@@ -43,9 +43,9 @@ The `setup.sh` script executes all installation scripts in optimized dependency 
 
 Run any script independently:
 ```bash
-./go.sh          # Install just Go
-./ghostty.sh     # Install just Ghostty
-./neovim.sh      # Install Neovim ecosystem
+bash scripts/go.sh          # Install just Go
+bash scripts/ghostty.sh     # Install just Ghostty
+bash scripts/neovim.sh      # Install Neovim ecosystem
 ```
 
 ## Script Features
@@ -74,9 +74,14 @@ All installation scripts follow standardized patterns:
 
 ```
 machine-setup/
-├── setup.sh              # Main orchestration script
-├── colors.sh            # Shared logging functions
+├── scripts/             # All Bash scripts
+│   ├── setup.sh         # Main orchestration script (path-safe)
+│   ├── colors.sh        # Shared logging functions
+│   └── *.sh             # Individual installation scripts
 ├── AGENTS.md            # Guidelines for AI agents
 ├── README.md            # This documentation
-└── [tool-name].sh       # Individual installation scripts
+├── package.json         # Top-level TUI app (Solid + OpenTUI)
+├── tsconfig.json        # TS config for TUI
+├── index.tsx            # TUI entrypoint
+└── src/                 # TUI sources
 ```

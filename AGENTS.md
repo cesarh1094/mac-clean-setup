@@ -1,14 +1,14 @@
 # AGENTS.md - Guidelines for AI Coding Agents
 
 ## Build/Test Commands
-- **Main setup**: `./setup.sh` (runs all installation scripts in dependency order)
-- **Individual tools**: `./<tool-name>.sh` (e.g., `./brew.sh`, `./go.sh`)
-- **Make executable**: `chmod +x *.sh` (auto-run by setup.sh)
+- **Main setup**: `bash scripts/setup.sh` (runs all installation scripts in dependency order)
+- **Individual tools**: `bash scripts/<tool-name>.sh` (e.g., `bash scripts/brew.sh`, `bash scripts/go.sh`)
+- **Make executable**: handled automatically by `scripts/setup.sh`
 - **No testing framework** - this is an installation script repository
 
 ## Project Architecture
 This repository contains 15+ macOS development environment installation scripts with:
-- **Dependency-aware execution order** in setup.sh (Foundation → Runtimes → Productivity → Terminal/Editors → CLI Tools)
+- **Dependency-aware execution order** in `scripts/setup.sh` (Foundation → Runtimes → Productivity → Terminal/Editors → CLI Tools)
 - **Consistent error handling** and installation verification across all scripts
 - **Standardized logging** with colored output via colors.sh
 - **Smart detection** of existing installations to prevent conflicts
@@ -23,7 +23,7 @@ This repository contains 15+ macOS development environment installation scripts 
 - **Structure**: Import colors → log start → check if installed → install → verify → log finish
 - **Consistency**: Follow existing patterns for brew install checks and success/failure logging
 - **Comments**: Inline comments for complex conditions, header comments for file purpose
-- **Dependencies**: Most scripts depend on Homebrew; claude-code.sh requires npm from NVM-managed Node; setup.sh orchestrates execution order with fail-fast behavior
+- **Dependencies**: Most scripts depend on Homebrew; claude-code.sh requires npm from NVM-managed Node; `scripts/setup.sh` orchestrates execution order with fail-fast behavior
 
 ## Installation Patterns
 
