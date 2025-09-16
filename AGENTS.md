@@ -23,7 +23,7 @@ This repository contains 15+ macOS development environment installation scripts 
 - **Structure**: Import colors → log start → check if installed → install → verify → log finish
 - **Consistency**: Follow existing patterns for brew install checks and success/failure logging
 - **Comments**: Inline comments for complex conditions, header comments for file purpose
-- **Dependencies**: Most scripts depend on Homebrew; claude-code.sh requires npm; setup.sh orchestrates execution order
+- **Dependencies**: Most scripts depend on Homebrew; claude-code.sh requires npm from NVM-managed Node; setup.sh orchestrates execution order with fail-fast behavior
 
 ## Installation Patterns
 
@@ -51,8 +51,8 @@ fi
 
 ## Current Scripts
 - **Foundation**: brew.sh
-- **Runtimes**: node.sh, nvm.sh, go.sh  
+- **Runtimes**: nvm.sh, node.sh (NVM-managed), bun.sh, go.sh  
 - **Productivity**: karabiner-elements.sh, raycast.sh
 - **Terminal/Editors**: ghostty.sh, cursor.sh, neovim.sh, zellij.sh
-- **CLI Tools**: github-cli.sh, claude-code.sh, open-code.sh
+- **CLI Tools**: github-cli.sh, claude-code.sh, open-code.sh, cursor-agent.sh
 - **Utilities**: colors.sh (shared logging functions)

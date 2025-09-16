@@ -16,6 +16,7 @@ else
     log_success_sub "✅ Zellij installed successfully!"
   else
     log_error_sub "❌ Zellij installation failed"
+    exit 1
   fi
 fi
 

@@ -16,6 +16,7 @@ else
     log_success_sub "✅ OpenCode TUI installed successfully!"
   else
     log_error_sub "❌ OpenCode TUI installation failed"
+    exit 1
   fi
 fi
 

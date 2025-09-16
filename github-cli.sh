@@ -16,6 +16,7 @@ else
     log_success_sub "✅ GitHub CLI installed successfully!"
   else
     log_error_sub "❌ GitHub CLI installation failed"
+    exit 1
   fi
 fi
 

@@ -18,8 +18,8 @@ The `setup.sh` script executes all installation scripts in optimized dependency 
 - **`brew.sh`** - Homebrew package manager (required by most tools)
 
 ### **2. Programming Languages & Runtimes**
-- **`node.sh`** - Node.js + npm via Homebrew
-- **`nvm.sh`** - Node Version Manager for version flexibility
+- **`nvm.sh`** - Node Version Manager (installed first for Node management)
+- **`node.sh`** - Node.js LTS via NVM (replaces Homebrew Node for better version control)
 - **`bun.sh`** - Bun JavaScript runtime and package manager
 - **`go.sh`** - Go programming language
 
@@ -35,8 +35,9 @@ The `setup.sh` script executes all installation scripts in optimized dependency 
 
 ### **5. CLI Tools** 
 - **`github-cli.sh`** - GitHub CLI (`gh` command)
-- **`claude-code.sh`** - Claude Code CLI (requires npm)
+- **`claude-code.sh`** - Claude Code CLI (requires npm from NVM-managed Node)
 - **`open-code.sh`** - OpenCode TUI
+- **`cursor-agent.sh`** - Cursor Agent CLI
 
 ## Individual Installation
 
@@ -67,6 +68,7 @@ All installation scripts follow standardized patterns:
 - Graceful handling of existing installations
 - Clear feedback on installation success/failure
 - Standardized exit codes and error reporting
+- **Fail-fast execution**: Setup stops immediately on any installation failure
 
 ## Repository Structure
 

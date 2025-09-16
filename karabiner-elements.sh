@@ -16,6 +16,7 @@ else
     log_success_sub "✅ Karabiner Elements installed successfully!"
   else
     log_error_sub "❌ Karabiner Elements installation failed"
+    exit 1
   fi
 fi
 

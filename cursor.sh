@@ -16,6 +16,7 @@ else
     log_success_sub "✅ Cursor installed successfully!"
   else
     log_error_sub "❌ Cursor installation failed"
+    exit 1
   fi
 fi
 

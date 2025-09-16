@@ -4,6 +4,11 @@ source "$(dirname "$0")/colors.sh"
 
 log_info "Running Neovim setup script..."
 
+# Check if git is available
+if ! command -v git >/dev/null 2>&1; then
+  log_warning_sub "Git not found. Some features may not work properly."
+fi
+
 # Install neovim if it doesn't exist
 if brew list neovim >/dev/null 2>&1; then
   log_warning_sub "Neovim is already installed"
@@ -15,6 +20,7 @@ else
     log_success_sub "✅ Neovim installed successfully!"
   else
     log_error_sub "❌ Neovim installation failed"
+    exit 1
   fi
 fi
 
@@ -33,12 +39,9 @@ else
 
   if brew list lazygit >/dev/null 2>&1; then
     log_success_sub "✅ Lazygit installed successfully!"
-
-    log_info_sub "Load general lazygit config"
-
-    lazygit -c
   else
     log_error_sub "❌ Lazygit installation failed"
+    exit 1
   fi
 fi
 
@@ -53,6 +56,7 @@ else
     log_success_sub "✅ Ripgrep installed successfully!"
   else
     log_error_sub "❌ Ripgrep installation failed"
+    exit 1
   fi
 fi
 
@@ -67,18 +71,24 @@ else
     log_success_sub "✅ FZF installed successfully!"
   else
     log_error_sub "❌ FZF installation failed"
+    exit 1
   fi
 fi
 
 # Clone neovim config if it doesn't exist
 if [ ! -d ~/.config/nvim ]; then
-  log_info_sub "Cloning Neovim config"
-  git clone https://github.com/cesarh1094/config.nvim.git ~/.config/nvim
+  if command -v git >/dev/null 2>&1; then
+    log_info_sub "Cloning Neovim config"
+    git clone https://github.com/cesarh1094/config.nvim.git ~/.config/nvim
 
-  if [ -d ~/.config/nvim ]; then
-    log_success_sub "✅ Neovim config cloned successfully!"
+    if [ -d ~/.config/nvim ]; then
+      log_success_sub "✅ Neovim config cloned successfully!"
+    else
+      log_error_sub "❌ Neovim config cloning failed"
+      exit 1
+    fi
   else
-    log_error_sub "❌ Neovim config cloning failed"
+    log_warning_sub "Git not available. Skipping Neovim config clone."
   fi
 else
   log_warning_sub "Neovim config already exists"

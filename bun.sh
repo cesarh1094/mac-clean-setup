@@ -16,6 +16,7 @@ else
     log_success_sub "✅ Bun installed successfully!"
   else
     log_error_sub "❌ Bun installation failed"
+    exit 1
   fi
 fi
 
