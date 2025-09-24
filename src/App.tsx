@@ -1,7 +1,7 @@
 import { batch, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { getKeyHandler } from "@opentui/core";
-import { useRenderer, useTerminalDimensions } from "@opentui/solid";
+import { useRenderer } from "@opentui/solid";
 import { spawn } from "node:child_process";
 import path from "node:path";
 
@@ -117,7 +117,6 @@ const initialSteps: Step[] = [
 
 export default function App() {
   const renderer = useRenderer();
-  const term = useTerminalDimensions();
 
   const [state, setState] = createStore<AppStore>({
     steps: initialSteps,
@@ -425,20 +424,11 @@ export default function App() {
     });
   });
 
-  function center(content: string) {
-    const { width } = term();
-    const pad = Math.max(0, Math.floor((width - content.length) / 2));
-
-    return `${" ".repeat(pad)}${content}`;
-  }
-
-  const footerWelcome = () => center("Enter start  • c console  • q/Esc quit");
+  const footerWelcome = () => "Enter start  • c console  • q/Esc quit";
   const footerSelect = () =>
-    center(
-      "↑/↓ move  • Space select  • Enter run  • a all  • n none  • r retry fail  • c console  • q/Esc quit"
-    );
-  const footerRun = () => center("c console  • q/Esc quit");
-  const footerSummary = () => center("Enter home  • c console  • q/Esc quit");
+    "↑/↓ move  • Space select  • Enter run  • a all  • n none  • r retry fail  • c console  • q/Esc quit";
+  const footerRun = () => "c console  • q/Esc quit";
+  const footerSummary = () => "Enter home  • c console  • q/Esc quit";
 
   const currentFooter = createMemo(() => {
     switch (screen()) {

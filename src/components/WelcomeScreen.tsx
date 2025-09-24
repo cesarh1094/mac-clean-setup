@@ -7,13 +7,7 @@ type WelcomeScreenProps = {
 };
 
 const WelcomeScreen: Component<WelcomeScreenProps> = (props) => (
-  <box
-    flexDirection="column"
-    width="100%"
-    height="100%"
-    flexGrow={1}
-    padding={2}
-  >
+  <box flexDirection="column" width="100%" height="100%" flexGrow={1}>
     <box
       flexDirection="column"
       gap={1}
