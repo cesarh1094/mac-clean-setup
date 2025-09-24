@@ -13,7 +13,7 @@ type RunScreenProps = {
 
 const RunScreen: Component<RunScreenProps> = (props) => (
   <box flexDirection="column" width="100%" height="100%" flexGrow={1}>
-    <box flexGrow={1} flexDirection="row" width="100%">
+    <box flexGrow={1} flexDirection="row" width="100%" gap={1}>
       <box
         width={40}
         height="100%"

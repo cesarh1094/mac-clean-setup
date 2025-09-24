@@ -21,7 +21,8 @@ npm install
 
 ### Run the TUI
 ```bash
-npm run dev  # uses Bun
+npm run start      # launch the TUI once
+npm run dev        # launch the TUI in watch mode (auto-restart)
 ```
 
 ### Keybindings
@@ -97,20 +98,14 @@ All installation scripts follow standardized patterns:
 
 ```
 machine-setup/
-├── scripts/             # All Bash scripts
-│   ├── setup.sh         # Main orchestration script (path-safe)
-│   ├── colors.sh        # Shared logging functions
-│   └── *.sh             # Individual installation scripts
-├── AGENTS.md            # Guidelines for AI agents
-├── README.md            # This documentation
-├── package.json         # Top-level TUI app (Solid + OpenTUI)
-├── tsconfig.json        # TS config for TUI
-├── index.tsx            # TUI entrypoint
-└── src/                 # TUI sources
+├── scripts/               # All Bash scripts
+│   ├── setup.sh           # Main orchestration script (path-safe)
+│   ├── colors.sh          # Shared logging functions
+│   └── *.sh               # Individual installation scripts
+├── AGENTS.md              # Guidelines for AI agents
+├── README.md              # This documentation
+├── package.json           # Scripts (`start`, `dev`) and dependencies
+├── tsconfig.json          # TypeScript config (ESNext, bundler mode, Node types)
+├── index.tsx              # TUI entrypoint
+└── src/                   # TUI sources (components, store, utils)
 ```
-# TODO
-- Center screen one vertically and horizontally
-- add space above shortcuts 
-- Add fourth screen that shows the user that the list of options they selected were installed correctly 
-- Add fourth screen so that we can take a user back to screen one (And automatically disable from scripts they've previously run ins't include except for Homebrew that should always be an option)
-- Continue to show relevant shortcuts/keybindings on every screen (I noticed there wasn't a set of shortcuts for the third screen)

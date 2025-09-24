@@ -15,15 +15,22 @@ type SelectScreenProps = {
 
 const SelectScreen: Component<SelectScreenProps> = (props) => (
   <box flexDirection="column" width="100%" height="100%" flexGrow={1}>
-    <box flexGrow={1} borderStyle="double" title="What would you like to install?" padding={1}>
+    <box
+      flexGrow={1}
+      borderStyle="double"
+      title="What would you like to install?"
+      padding={1}
+    >
       <For each={props.steps()}>
         {(step, i) => {
           const isCursor = () => i() === props.cursorIdx();
           const isSelected = () => props.selected().has(step.id);
-          const isCompleted = () => step.id !== "brew" && props.completed().has(step.id);
+          const isCompleted = () =>
+            step.id !== "brew" && props.completed().has(step.id);
           const brewSelected = () => props.selected().has("brew");
           const isDisabled = () =>
-            (step.requiresBrew && !brewSelected() && !props.isBrewReady()) || isCompleted();
+            (step.requiresBrew && !brewSelected() && !props.isBrewReady()) ||
+            isCompleted();
           const color = () => {
             if (isDisabled()) return "#777777";
             if (isCursor()) return "#00FFFF";
@@ -31,9 +38,12 @@ const SelectScreen: Component<SelectScreenProps> = (props) => (
             return "#CCCCCC";
           };
           const label = () => {
-            const base = `${isSelected() ? "[x]" : "[ ]"} ${isCursor() ? ">" : " "} ${step.label}`;
+            const base = `${isSelected() ? "[x]" : "[ ]"} ${
+              isCursor() ? ">" : " "
+            } ${step.label}`;
             if (isCompleted()) return `${base} (completed)`;
-            if (step.requiresBrew && !brewSelected() && !props.isBrewReady()) return `${base} (requires brew)`;
+            if (step.requiresBrew && !brewSelected() && !props.isBrewReady())
+              return `${base} (requires brew)`;
             return base;
           };
           return <text content={label()} fg={color()} />;
@@ -45,5 +55,3 @@ const SelectScreen: Component<SelectScreenProps> = (props) => (
 );
 
 export default SelectScreen;
-
-

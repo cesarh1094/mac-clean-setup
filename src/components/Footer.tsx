@@ -13,5 +13,3 @@ const Footer: Component<FooterProps> = (props) => (
 );
 
 export default Footer;
-
-

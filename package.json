@@ -5,7 +5,8 @@
   "version": "0.0.1",
   "description": "SolidJS + OpenTUI wrapper for scripts/",
   "scripts": {
-    "dev": "bun index.tsx",
+    "start": "bun index.tsx",
+    "dev": "bun --watch index.tsx",
     "setup": "bash scripts/setup.sh"
   },
   "dependencies": {
@@ -18,4 +19,3 @@
     "@types/node": "latest"
   }
 }
-
