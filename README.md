@@ -10,6 +10,29 @@ cd machine-setup
 bash scripts/setup.sh
 ```
 
+## TUI Runner (SolidJS + OpenTUI)
+
+Interactive terminal UI to run installers step-by-step with live logs.
+
+### Install deps (Bun required for the TUI)
+```bash
+npm install
+```
+
+### Run the TUI
+```bash
+npm run dev  # uses Bun
+```
+
+### Keybindings
+- **Enter**: run selected steps (or all if none selected)
+- **Space**: toggle selection
+- **a**: select all
+- **n**: clear selection
+- **r**: select failed steps
+- **q / Esc / Ctrl+C**: quit
+- **c**: toggle console overlay
+
 ## Installation Architecture
 
 The `setup.sh` script executes all installation scripts in optimized dependency order:
@@ -85,3 +108,9 @@ machine-setup/
 ├── index.tsx            # TUI entrypoint
 └── src/                 # TUI sources
 ```
+# TODO
+- Center screen one vertically and horizontally
+- add space above shortcuts 
+- Add fourth screen that shows the user that the list of options they selected were installed correctly 
+- Add fourth screen so that we can take a user back to screen one (And automatically disable from scripts they've previously run ins't include except for Homebrew that should always be an option)
+- Continue to show relevant shortcuts/keybindings on every screen (I noticed there wasn't a set of shortcuts for the third screen)

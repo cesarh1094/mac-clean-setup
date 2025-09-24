@@ -1,9 +1,9 @@
 // @ts-nocheck
 import { render } from "@opentui/solid";
-import { createCliRenderer, ConsolePosition } from "@opentui/core";
+import { ConsolePosition } from "@opentui/core";
 import App from "./src/App";
 
-const renderer = await createCliRenderer({
+await render(() => <App />, {
   consoleOptions: {
     position: ConsolePosition.BOTTOM,
     sizePercent: 35,
@@ -13,7 +13,5 @@ const renderer = await createCliRenderer({
     startInDebugMode: false
   }
 });
-
-await render(() => <App renderer={renderer} />, { renderer });
 
 
