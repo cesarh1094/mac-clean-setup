@@ -11,7 +11,9 @@ import SelectScreen from "./components/SelectScreen";
 import RunScreen from "./components/RunScreen";
 import SummaryScreen from "./components/SummaryScreen";
 import { hydrateLogEntry } from "./utils/logging";
+
 import type { AppStore, LogEntry, Screen, Step, StepStatus } from "./types";
+import type { ParsedKey } from "@opentui/core";
 
 const repoRoot = process.cwd();
 const base = (p: string) => path.join(repoRoot, p);
@@ -154,10 +156,16 @@ export default function App() {
       if (next.length > 300) next.shift();
       return next;
     });
-    if (/\[ERROR\]/.test(rawLine)) console.error(rawLine);
-    else if (/\[WARNING\]/.test(rawLine)) console.warn(rawLine);
-    else if (/\[SUCCESS\]/.test(rawLine)) console.info(rawLine);
-    else console.log(rawLine);
+
+    if (/\[ERROR\]/.test(rawLine)) {
+      console.error(rawLine);
+    } else if (/\[WARNING\]/.test(rawLine)) {
+      console.warn(rawLine);
+    } else if (/\[SUCCESS\]/.test(rawLine)) {
+      console.info(rawLine);
+    } else {
+      console.log(rawLine);
+    }
   }
 
   async function runScript(absPath: string): Promise<number> {
@@ -174,22 +182,21 @@ export default function App() {
       child.stdout.on("data", (d) => {
         const chunk = String(d);
         for (const part of chunk.split(/\r?\n/)) {
-          if (part.length === 0) continue;
+          if (part.length === 0) {
+            continue;
+          }
           appendLog(part);
         }
-        try {
-          renderer.console.write(chunk);
-        } catch {}
       });
       child.stderr.on("data", (d) => {
         const chunk = String(d);
         for (const part of chunk.split(/\r?\n/)) {
-          if (part.length === 0) continue;
+          if (part.length === 0) {
+            continue;
+          }
+
           appendLog(part);
         }
-        try {
-          renderer.console.write(chunk);
-        } catch {}
       });
       child.on("close", (code) => resolve(code ?? 1));
       child.on("error", (err) => {
@@ -200,7 +207,9 @@ export default function App() {
   }
 
   async function runSelectedInOrder() {
-    if (activeRunIds().length) {return;}
+    if (activeRunIds().length) {
+      return;
+    }
 
     setScreen("run");
 
@@ -236,7 +245,9 @@ export default function App() {
         s.durationMs = durationMs;
       });
 
-      if (code !== 0){ break;}
+      if (code !== 0) {
+        break;
+      }
     }
 
     setState("lastRunIds", executedIds);
@@ -255,14 +266,19 @@ export default function App() {
 
     batch(() => {
       const updatedCompleted = new Set(completedSet());
-      for (const id of successfulIds) {updatedCompleted.add(id);}
+
+      for (const id of successfulIds) {
+        updatedCompleted.add(id);
+      }
 
       setState("completedIds", Array.from(updatedCompleted));
 
       const nextSelected = new Set<string>(["brew"]);
 
       for (const id of failedIds) {
-        if (!updatedCompleted.has(id)) {nextSelected.add(id);}
+        if (!updatedCompleted.has(id)) {
+          nextSelected.add(id);
+        }
       }
 
       setSelected(nextSelected);
@@ -340,42 +356,72 @@ export default function App() {
   onMount(() => {
     const keys = getKeyHandler();
 
-    keys.on("keypress", (key) => {
+    const keyListener = (key: ParsedKey) => {
       const name = String(key.name || "").toLowerCase();
-      if (key.ctrl && name === "c") {process.exit(0);}
-
-      if (name === "escape" || name === "q") {process.exit(0);}
-
-      if (screen() === "select") {
-        if (name === "up") {setCursorIdx((i) => Math.max(0, i - 1));}
-
-        if (name === "down"){
-          setCursorIdx((i) => Math.min(steps().length - 1, i + 1));}
-
-        if (name === "space") {toggleSelection(steps()[cursorIdx()].id);}
-
-        if (name === "a") {selectAll();}
-        if (name === "n") {clearSelection();}
-
-        if (name === "r") {retryFailed();}
-
+      if (key.ctrl && name === "c") {
+        process.exit(0);
       }
 
-      if (name === "c") {renderer.console.toggle();}
+      if (name === "escape" || name === "q") {
+        process.exit(0);
+      }
+
+      if (screen() === "select") {
+        if (name === "up") {
+          setCursorIdx((i) => Math.max(0, i - 1));
+        }
+
+        if (name === "down") {
+          setCursorIdx((i) => Math.min(steps().length - 1, i + 1));
+        }
+
+        if (name === "space") {
+          const current = steps()[cursorIdx()];
+
+          if (current) {
+            toggleSelection(current.id);
+          }
+        }
+
+        if (name === "a") {
+          selectAll();
+        }
+        if (name === "n") {
+          clearSelection();
+        }
+
+        if (name === "r") {
+          retryFailed();
+        }
+      }
+
+      if (name === "c") {
+        renderer.console.toggle();
+      }
 
       if (name === "return" || name === "enter") {
-        if (screen() === "welcome") {setScreen("select");}
-        else if (screen() === "select") {runSelectedInOrder();}
-
-        else if (screen() === "summary") {
+        if (screen() === "welcome") {
+          setScreen("select");
+        } else if (screen() === "select") {
+          runSelectedInOrder();
+        } else if (screen() === "summary") {
           setScreen("welcome");
         }
       }
-    });
+    };
+
+    (
+      keys as unknown as {
+        on(event: "keypress", listener: (key: ParsedKey) => void): void;
+      }
+    ).on("keypress", keyListener);
+
     onCleanup(() => {
-      try {
-        keys.removeAllListeners?.("keypress");
-      } catch {}
+      (
+        keys as unknown as {
+          off(event: "keypress", listener: (key: ParsedKey) => void): void;
+        }
+      ).off("keypress", keyListener);
     });
   });
 

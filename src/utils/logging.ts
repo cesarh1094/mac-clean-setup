@@ -32,15 +32,19 @@ export function stripAnsiCodes(input: string): string {
 
 function getAnsiFgColor(input: string): string | undefined {
   const matches = [...input.matchAll(/\x1B\[([0-9;]+)m/g)];
-  if (!matches.length) return undefined;
-  const last = matches[matches.length - 1][1];
-  const code = last.split(";").map(Number).find(c => (c >= 30 && c <= 37) || (c >= 90 && c <= 97));
-  return code ? ANSI_COLOR_MAP[code] : undefined;
+  if (!matches.length) {return undefined;}
+  const last = matches[matches.length - 1]?.[1];
+  if (!last) {return undefined;}
+  const code = last
+    .split(";")
+    .map(Number)
+    .find((c) => (c >= 30 && c <= 37) || (c >= 90 && c <= 97));
+  return code !== undefined ? ANSI_COLOR_MAP[code] : undefined;
 }
 
 function getTagColor(input: string): string | undefined {
   for (const [tag, color] of Object.entries(TAG_COLORS)) {
-    if (input.includes(tag)) return color;
+    if (input.includes(tag)) {return color;}
   }
   return undefined;
 }
