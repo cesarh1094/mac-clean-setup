@@ -14,7 +14,8 @@
     "solid-js": "latest"
   },
   "devDependencies": {
-    "tsx": "latest"
+    "tsx": "latest",
+    "@types/node": "latest"
   }
 }
 
