@@ -16,6 +16,9 @@ export type LogEntry = {
   text: string;
   fg?: string;
   dim?: boolean;
+  icon?: string;
+  iconColor?: string;
+  separator?: boolean;
 };
 
 export type Screen = "welcome" | "select" | "run" | "summary";

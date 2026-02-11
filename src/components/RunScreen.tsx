@@ -126,7 +126,35 @@ const RunScreen: Component<RunScreenProps> = (props) => {
         >
           <scrollbox height="100%" width="100%" padding={1} focused stickyScroll>
             <For each={props.logs()}>
-              {(entry) => <text content={entry.text} fg={entry.fg} />}
+              {(entry) => {
+                if (entry.separator) {
+                  return (
+                    <text
+                      content="────────────────────────────"
+                      fg={theme.highlightMed}
+                    />
+                  );
+                }
+                const indent = entry.dim ? "  " : "";
+                if (entry.icon && entry.iconColor && entry.iconColor !== entry.fg) {
+                  return (
+                    <box flexDirection="row">
+                      <text
+                        content={`${indent}${entry.icon} `}
+                        fg={entry.iconColor}
+                      />
+                      <text content={entry.text} fg={entry.fg} />
+                    </box>
+                  );
+                }
+                const prefix = entry.icon ? `${entry.icon} ` : "";
+                return (
+                  <text
+                    content={`${indent}${prefix}${entry.text}`}
+                    fg={entry.fg}
+                  />
+                );
+              }}
             </For>
           </scrollbox>
         </box>

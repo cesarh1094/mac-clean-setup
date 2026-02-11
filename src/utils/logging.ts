@@ -1,11 +1,38 @@
 import type { LogEntry } from "../types";
 import { theme } from "../theme";
 
-const TAG_COLORS: Record<string, string> = {
-  "[ERROR]": theme.love,
-  "[WARNING]": theme.gold,
-  "[SUCCESS]": theme.foam,
-  "[INFO]": theme.pine,
+type TagConfig = {
+  icon: string;
+  iconColor: string;
+  bodyColor: string;
+  subBodyColor: string;
+};
+
+const TAG_CONFIG: Record<string, TagConfig> = {
+  "[ERROR]": {
+    icon: "✗",
+    iconColor: theme.love,
+    bodyColor: theme.love,
+    subBodyColor: theme.love,
+  },
+  "[WARNING]": {
+    icon: "⚠",
+    iconColor: theme.gold,
+    bodyColor: theme.gold,
+    subBodyColor: theme.gold,
+  },
+  "[SUCCESS]": {
+    icon: "✓",
+    iconColor: theme.foam,
+    bodyColor: theme.text,
+    subBodyColor: theme.subtle,
+  },
+  "[INFO]": {
+    icon: "ℹ",
+    iconColor: theme.pine,
+    bodyColor: theme.text,
+    subBodyColor: theme.subtle,
+  },
 };
 
 const ANSI_COLOR_MAP: Record<number, string> = {
@@ -27,8 +54,14 @@ const ANSI_COLOR_MAP: Record<number, string> = {
   97: theme.text,
 };
 
+const EMOJI_RE = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{200D}\u{20E3}\u{FE0F}]+/gu;
+
 export function stripAnsiCodes(input: string): string {
   return input.replace(/\x1B\[[0-9;]*m/g, "");
+}
+
+function stripEmoji(input: string): string {
+  return input.replace(EMOJI_RE, "").replace(/\s{2,}/g, " ").trim();
 }
 
 function getAnsiFgColor(input: string): string | undefined {
@@ -52,20 +85,63 @@ function getAnsiFgColor(input: string): string | undefined {
   return code !== undefined ? ANSI_COLOR_MAP[code] : undefined;
 }
 
-function getTagColor(input: string): string | undefined {
-  for (const [tag, color] of Object.entries(TAG_COLORS)) {
+function findTag(input: string): { tag: string; config: TagConfig } | undefined {
+  for (const [tag, config] of Object.entries(TAG_CONFIG)) {
     if (input.includes(tag)) {
-      return color;
+      return { tag, config };
     }
   }
-
   return undefined;
 }
 
-export function hydrateLogEntry(rawLine: string): LogEntry {
-  const fg = getTagColor(rawLine) ?? getAnsiFgColor(rawLine) ?? theme.subtle;
-  const dim = /^\s{4}/.test(rawLine);
-  const text = stripAnsiCodes(rawLine).replace(/\n$/, "");
+const FINISHED_RE = /^Finished .+ script\.?$/i;
 
-  return { text, fg, dim };
+export function hydrateLogEntries(
+  rawLine: string,
+  isFirstEntry: boolean,
+): LogEntry[] {
+  const ansiColor = getAnsiFgColor(rawLine);
+  const stripped = stripAnsiCodes(rawLine).replace(/\n$/, "");
+  const isSub = /^\s{4}/.test(stripped);
+
+  const found = findTag(stripped);
+
+  if (found) {
+    const { tag, config } = found;
+
+    // Strip tag from text, strip emoji, clean up
+    let text = stripped.replace(tag, "").trim();
+    text = stripEmoji(text);
+
+    // Collapse "Finished X install script." lines
+    if (FINISHED_RE.test(text)) {
+      return [];
+    }
+
+    const entries: LogEntry[] = [];
+
+    // Add separator before top-level [INFO] lines (step boundaries)
+    if (tag === "[INFO]" && !isSub && !isFirstEntry) {
+      entries.push({ text: "", separator: true });
+    }
+
+    entries.push({
+      text,
+      fg: isSub ? config.subBodyColor : config.bodyColor,
+      dim: isSub,
+      icon: config.icon,
+      iconColor: config.iconColor,
+    });
+
+    return entries;
+  }
+
+  // No tag — plain output from brew/npm/etc
+  return [
+    {
+      text: stripEmoji(stripped),
+      fg: ansiColor ?? theme.subtle,
+      dim: isSub,
+    },
+  ];
 }

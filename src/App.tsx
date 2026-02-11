@@ -9,7 +9,7 @@ import WelcomeScreen from "./components/WelcomeScreen";
 import SelectScreen from "./components/SelectScreen";
 import RunScreen from "./components/RunScreen";
 import SummaryScreen from "./components/SummaryScreen";
-import { hydrateLogEntry } from "./utils/logging";
+import { hydrateLogEntries } from "./utils/logging";
 
 import type { AppStore, KeyHint, LogEntry, Screen, Step, StepStatus } from "./types";
 
@@ -168,9 +168,14 @@ export default function App() {
     steps().find((s) => s.id === "brew")?.status === "ok";
 
   function appendLog(rawLine: string) {
+    const isFirst = logs().length === 0;
+    const entries = hydrateLogEntries(rawLine, isFirst);
+
+    if (entries.length === 0) return;
+
     setLogs((prev) => {
-      const next = [...prev, hydrateLogEntry(rawLine)];
-      if (next.length > 300) next.shift();
+      const next = [...prev, ...entries];
+      while (next.length > 300) next.shift();
       return next;
     });
 
