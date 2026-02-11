@@ -21,13 +21,21 @@ const initialSteps: Step[] = [
     label: "Homebrew",
     script: base("scripts/brew.sh"),
     status: "idle",
+    category: "Foundation",
   },
-  { id: "nvm", label: "NVM", script: base("scripts/nvm.sh"), status: "idle" },
+  {
+    id: "nvm",
+    label: "NVM",
+    script: base("scripts/nvm.sh"),
+    status: "idle",
+    category: "Runtimes",
+  },
   {
     id: "node",
     label: "Node.js",
     script: base("scripts/node.sh"),
     status: "idle",
+    category: "Runtimes",
   },
   {
     id: "bun",
@@ -35,6 +43,7 @@ const initialSteps: Step[] = [
     script: base("scripts/bun.sh"),
     status: "idle",
     requiresBrew: true,
+    category: "Runtimes",
   },
   {
     id: "go",
@@ -42,6 +51,7 @@ const initialSteps: Step[] = [
     script: base("scripts/go.sh"),
     status: "idle",
     requiresBrew: true,
+    category: "Runtimes",
   },
   {
     id: "karabiner",
@@ -49,6 +59,7 @@ const initialSteps: Step[] = [
     script: base("scripts/karabiner-elements.sh"),
     status: "idle",
     requiresBrew: true,
+    category: "Productivity",
   },
   {
     id: "raycast",
@@ -56,6 +67,7 @@ const initialSteps: Step[] = [
     script: base("scripts/raycast.sh"),
     status: "idle",
     requiresBrew: true,
+    category: "Productivity",
   },
   {
     id: "ghostty",
@@ -63,6 +75,7 @@ const initialSteps: Step[] = [
     script: base("scripts/ghostty.sh"),
     status: "idle",
     requiresBrew: true,
+    category: "Terminal & Editors",
   },
   {
     id: "cursor",
@@ -70,6 +83,7 @@ const initialSteps: Step[] = [
     script: base("scripts/cursor.sh"),
     status: "idle",
     requiresBrew: true,
+    category: "Terminal & Editors",
   },
   {
     id: "neovim",
@@ -77,6 +91,7 @@ const initialSteps: Step[] = [
     script: base("scripts/neovim.sh"),
     status: "idle",
     requiresBrew: true,
+    category: "Terminal & Editors",
   },
   {
     id: "zellij",
@@ -84,6 +99,7 @@ const initialSteps: Step[] = [
     script: base("scripts/zellij.sh"),
     status: "idle",
     requiresBrew: true,
+    category: "Terminal & Editors",
   },
   {
     id: "gh",
@@ -91,12 +107,14 @@ const initialSteps: Step[] = [
     script: base("scripts/github-cli.sh"),
     status: "idle",
     requiresBrew: true,
+    category: "CLI Tools",
   },
   {
     id: "claude",
     label: "Claude Code",
     script: base("scripts/claude-code.sh"),
     status: "idle",
+    category: "CLI Tools",
   },
   {
     id: "opencode",
@@ -104,12 +122,14 @@ const initialSteps: Step[] = [
     script: base("scripts/open-code.sh"),
     status: "idle",
     requiresBrew: true,
+    category: "CLI Tools",
   },
   {
     id: "cursor-agent",
     label: "Cursor Agent",
     script: base("scripts/cursor-agent.sh"),
     status: "idle",
+    category: "CLI Tools",
   },
 ];
 

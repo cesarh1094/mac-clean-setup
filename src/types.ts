@@ -9,6 +9,7 @@ export type Step = {
   status: StepStatus;
   durationMs?: number;
   requiresBrew?: boolean;
+  category?: string;
 };
 
 export type LogEntry = {
