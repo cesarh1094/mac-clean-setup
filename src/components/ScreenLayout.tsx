@@ -1,4 +1,5 @@
 import type { Component, JSX } from "solid-js";
+import { theme } from "../theme";
 
 type ScreenLayoutProps = {
   children: JSX.Element;
@@ -13,6 +14,7 @@ const ScreenLayout: Component<ScreenLayoutProps> = (props) => (
     paddingX={2}
     paddingY={2}
     gap={1}
+    backgroundColor={theme.base}
   >
     {props.children}
   </box>

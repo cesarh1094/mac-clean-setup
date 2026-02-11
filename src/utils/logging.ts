@@ -1,29 +1,30 @@
 import type { LogEntry } from "../types";
+import { theme } from "../theme";
 
 const TAG_COLORS: Record<string, string> = {
-  "[ERROR]": "#FF5555",
-  "[WARNING]": "#FFFF00",
-  "[SUCCESS]": "#00FF00",
-  "[INFO]": "#00FFFF",
+  "[ERROR]": theme.love,
+  "[WARNING]": theme.gold,
+  "[SUCCESS]": theme.foam,
+  "[INFO]": theme.pine,
 };
 
 const ANSI_COLOR_MAP: Record<number, string> = {
-  30: "#000000",
-  31: "#FF5555",
-  32: "#00FF00",
-  33: "#FFFF00",
-  34: "#00AAFF",
-  35: "#FF00FF",
-  36: "#00FFFF",
-  37: "#FFFFFF",
-  90: "#666666",
-  91: "#FF6E6E",
-  92: "#69FF69",
-  93: "#FFFF88",
-  94: "#33BBFF",
-  95: "#FF66FF",
-  96: "#66FFFF",
-  97: "#FFFFFF",
+  30: theme.overlay,
+  31: theme.love,
+  32: theme.foam,
+  33: theme.gold,
+  34: theme.iris,
+  35: theme.rose,
+  36: theme.foam,
+  37: theme.text,
+  90: theme.muted,
+  91: theme.love,
+  92: theme.foam,
+  93: theme.gold,
+  94: theme.iris,
+  95: theme.rose,
+  96: theme.foam,
+  97: theme.text,
 };
 
 export function stripAnsiCodes(input: string): string {
@@ -62,7 +63,7 @@ function getTagColor(input: string): string | undefined {
 }
 
 export function hydrateLogEntry(rawLine: string): LogEntry {
-  const fg = getTagColor(rawLine) ?? getAnsiFgColor(rawLine) ?? "#BBBBBB";
+  const fg = getTagColor(rawLine) ?? getAnsiFgColor(rawLine) ?? theme.subtle;
   const dim = /^\s{4}/.test(rawLine);
   const text = stripAnsiCodes(rawLine).replace(/\n$/, "");
 
