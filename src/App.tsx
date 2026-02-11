@@ -11,7 +11,7 @@ import RunScreen from "./components/RunScreen";
 import SummaryScreen from "./components/SummaryScreen";
 import { hydrateLogEntry } from "./utils/logging";
 
-import type { AppStore, LogEntry, Screen, Step, StepStatus } from "./types";
+import type { AppStore, KeyHint, LogEntry, Screen, Step, StepStatus } from "./types";
 
 const repoRoot = process.cwd();
 const base = (p: string) => path.join(repoRoot, p);
@@ -422,22 +422,41 @@ export default function App() {
     }
   });
 
-  const footerWelcome = () => "Enter start  • c console  • q/Esc quit";
-  const footerSelect = () =>
-    "↑/↓ move  • Space select  • Enter run  • a all  • n none  • r retry fail  • c console  • q/Esc quit";
-  const footerRun = () => "c console  • q/Esc quit";
-  const footerSummary = () => "Enter home  • c console  • q/Esc quit";
+  const footerWelcome: KeyHint[] = [
+    { key: "Enter", action: "start" },
+    { key: "c", action: "console" },
+    { key: "q", action: "quit" },
+  ];
+  const footerSelect: KeyHint[] = [
+    { key: "↑/↓", action: "move" },
+    { key: "Space", action: "select" },
+    { key: "Enter", action: "run" },
+    { key: "a", action: "all" },
+    { key: "n", action: "none" },
+    { key: "r", action: "retry" },
+    { key: "c", action: "console" },
+    { key: "q", action: "quit" },
+  ];
+  const footerRun: KeyHint[] = [
+    { key: "c", action: "console" },
+    { key: "q", action: "quit" },
+  ];
+  const footerSummary: KeyHint[] = [
+    { key: "Enter", action: "home" },
+    { key: "c", action: "console" },
+    { key: "q", action: "quit" },
+  ];
 
   const currentFooter = createMemo(() => {
     switch (screen()) {
       case "welcome":
-        return footerWelcome();
+        return footerWelcome;
       case "select":
-        return footerSelect();
+        return footerSelect;
       case "run":
-        return footerRun();
+        return footerRun;
       case "summary":
-        return footerSummary();
+        return footerSummary;
     }
   });
 
@@ -445,7 +464,7 @@ export default function App() {
     <ScreenLayout>
       <Switch>
         <Match when={screen() === "welcome"}>
-          <WelcomeScreen footer={currentFooter()} />
+          <WelcomeScreen hints={currentFooter()} />
         </Match>
         <Match when={screen() === "select"}>
           <SelectScreen
@@ -454,7 +473,7 @@ export default function App() {
             selected={selected}
             isBrewReady={isBrewReady}
             completed={completedAccessor}
-            footer={currentFooter()}
+            hints={currentFooter()}
           />
         </Match>
         <Match when={screen() === "run"}>
@@ -462,7 +481,7 @@ export default function App() {
             steps={steps}
             activeRunIds={activeRunIds}
             logs={logs}
-            footer={currentFooter()}
+            hints={currentFooter()}
           />
         </Match>
         <Match when={screen() === "summary"}>
@@ -470,7 +489,7 @@ export default function App() {
             steps={steps}
             lastRunIds={lastRunIds}
             completed={completedAccessor}
-            footer={currentFooter()}
+            hints={currentFooter()}
           />
         </Match>
       </Switch>

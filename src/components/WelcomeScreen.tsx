@@ -2,9 +2,10 @@ import type { Component } from "solid-js";
 import { theme } from "../theme";
 
 import Footer from "./Footer";
+import type { KeyHint } from "../types";
 
 type WelcomeScreenProps = {
-  footer: string;
+  hints: KeyHint[];
 };
 
 const WelcomeScreen: Component<WelcomeScreenProps> = (props) => (
@@ -27,7 +28,7 @@ const WelcomeScreen: Component<WelcomeScreenProps> = (props) => (
         fg={theme.muted}
       />
     </box>
-    <Footer content={props.footer} marginTop={2} />
+    <Footer hints={props.hints} marginTop={2} />
   </box>
 );
 

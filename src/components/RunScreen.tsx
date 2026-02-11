@@ -4,7 +4,7 @@ import { useTerminalDimensions } from "@opentui/solid";
 import { theme } from "../theme";
 
 import Footer from "./Footer";
-import type { LogEntry, Step } from "../types";
+import type { KeyHint, LogEntry, Step } from "../types";
 
 const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
@@ -12,7 +12,7 @@ type RunScreenProps = {
   steps: Accessor<Step[]>;
   activeRunIds: Accessor<string[]>;
   logs: Accessor<LogEntry[]>;
-  footer: string;
+  hints: KeyHint[];
 };
 
 const RunScreen: Component<RunScreenProps> = (props) => {
@@ -131,7 +131,7 @@ const RunScreen: Component<RunScreenProps> = (props) => {
           </scrollbox>
         </box>
       </box>
-      <Footer content={props.footer} marginTop={1} />
+      <Footer hints={props.hints} marginTop={1} />
     </box>
   );
 };

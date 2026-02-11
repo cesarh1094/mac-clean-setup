@@ -4,13 +4,13 @@ import { useTerminalDimensions } from "@opentui/solid";
 import { theme } from "../theme";
 
 import Footer from "./Footer";
-import type { Step } from "../types";
+import type { KeyHint, Step } from "../types";
 
 type SummaryScreenProps = {
   steps: Accessor<Step[]>;
   lastRunIds: Accessor<string[]>;
   completed: Accessor<Set<string>>;
-  footer: string;
+  hints: KeyHint[];
 };
 
 const SummaryScreen: Component<SummaryScreenProps> = (props) => {
@@ -87,7 +87,7 @@ const SummaryScreen: Component<SummaryScreenProps> = (props) => {
         </box>
       </box>
     </box>
-    <Footer content={props.footer} marginTop={1} />
+    <Footer hints={props.hints} marginTop={1} />
   </box>
   );
 };

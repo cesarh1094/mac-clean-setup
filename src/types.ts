@@ -20,6 +20,8 @@ export type LogEntry = {
 
 export type Screen = "welcome" | "select" | "run" | "summary";
 
+export type KeyHint = { key: string; action: string };
+
 export type AppStore = {
   steps: Step[];
   completedIds: string[];

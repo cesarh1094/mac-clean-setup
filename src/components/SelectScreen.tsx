@@ -3,7 +3,7 @@ import { createMemo, For } from "solid-js";
 import { theme } from "../theme";
 
 import Footer from "./Footer";
-import type { Step } from "../types";
+import type { KeyHint, Step } from "../types";
 
 type DisplayRow =
   | { type: "header"; label: string }
@@ -15,7 +15,7 @@ type SelectScreenProps = {
   selected: Accessor<Set<string>>;
   isBrewReady: Accessor<boolean>;
   completed: Accessor<Set<string>>;
-  footer: string;
+  hints: KeyHint[];
 };
 
 const SelectScreen: Component<SelectScreenProps> = (props) => {
@@ -112,7 +112,7 @@ const SelectScreen: Component<SelectScreenProps> = (props) => {
           </For>
         </box>
       </box>
-      <Footer content={props.footer} marginTop={1} />
+      <Footer hints={props.hints} marginTop={1} />
     </box>
   );
 };
