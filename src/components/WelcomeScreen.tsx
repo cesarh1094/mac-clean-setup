@@ -17,7 +17,7 @@ const WelcomeScreen: Component<WelcomeScreenProps> = (props) => (
       justifyContent="center"
       flexGrow={1}
     >
-      <ascii_font text="Ces's Setup" font="shade" color={theme.iris} />
+      <ascii_font text="Ces's Setup" font="block" color={theme.iris} />
       <box marginTop={1} />
       <text content="v0.0.1" fg={theme.muted} />
       <box marginTop={1} />

@@ -1,7 +1,7 @@
 import { batch, createMemo, createSignal, Match, Switch } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { useKeyboard, useRenderer } from "@opentui/solid";
-import { spawn } from "node:child_process";
+import { spawn, type ChildProcess } from "node:child_process";
 import path from "node:path";
 
 import ScreenLayout from "./components/ScreenLayout";
@@ -110,11 +110,51 @@ const initialSteps: Step[] = [
     category: "CLI Tools",
   },
   {
+    id: "fzf",
+    label: "fzf",
+    script: base("scripts/fzf.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
+    id: "lazygit",
+    label: "lazygit",
+    script: base("scripts/lazygit.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
+    id: "ripgrep",
+    label: "ripgrep",
+    script: base("scripts/ripgrep.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
+    id: "fd",
+    label: "fd",
+    script: base("scripts/fd.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
+    id: "starship",
+    label: "Starship",
+    script: base("scripts/starship.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
     id: "claude",
     label: "Claude Code",
     script: base("scripts/claude-code.sh"),
     status: "idle",
-    category: "CLI Tools",
+    category: "AI Tools",
   },
   {
     id: "opencode",
@@ -122,14 +162,14 @@ const initialSteps: Step[] = [
     script: base("scripts/open-code.sh"),
     status: "idle",
     requiresBrew: true,
-    category: "CLI Tools",
+    category: "AI Tools",
   },
   {
     id: "cursor-agent",
     label: "Cursor Agent",
     script: base("scripts/cursor-agent.sh"),
     status: "idle",
-    category: "CLI Tools",
+    category: "AI Tools",
   },
 ];
 
@@ -164,6 +204,7 @@ export default function App() {
   const [cursorIdx, setCursorIdx] = createSignal(0);
   const [selected, setSelected] = createSignal<Set<string>>(new Set(["brew"]));
   const [logs, setLogs] = createSignal<LogEntry[]>([]);
+  let activeChild: ChildProcess | null = null;
   const isBrewReady = () =>
     steps().find((s) => s.id === "brew")?.status === "ok";
 
@@ -220,8 +261,13 @@ export default function App() {
           appendLog(part);
         }
       });
-      child.on("close", (code) => resolve(code ?? 1));
+      activeChild = child;
+      child.on("close", (code) => {
+        activeChild = null;
+        resolve(code ?? 1);
+      });
       child.on("error", (err) => {
+        activeChild = null;
         appendLog(`[ERROR] ${String(err)}`);
         resolve(1);
       });
@@ -376,6 +422,10 @@ export default function App() {
   }
 
   function quit() {
+    if (activeChild) {
+      activeChild.kill("SIGTERM");
+      activeChild = null;
+    }
     renderer.destroy();
     process.exit(0);
   }
@@ -391,11 +441,11 @@ export default function App() {
     }
 
     if (screen() === "select") {
-      if (name === "up") {
+      if (name === "up" || name === "k") {
         setCursorIdx((i) => Math.max(0, i - 1));
       }
 
-      if (name === "down") {
+      if (name === "down" || name === "j") {
         setCursorIdx((i) => Math.min(steps().length - 1, i + 1));
       }
 
@@ -436,7 +486,7 @@ export default function App() {
     { key: "q", action: "quit" },
   ];
   const footerSelect: KeyHint[] = [
-    { key: "↑/↓", action: "move" },
+    { key: "↑↓/jk", action: "move" },
     { key: "Space", action: "select" },
     { key: "Enter", action: "run" },
     { key: "a", action: "all" },
