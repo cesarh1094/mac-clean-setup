@@ -16,7 +16,8 @@ const WelcomeScreen: Component<WelcomeScreenProps> = (props) => (
       justifyContent="center"
       flexGrow={1}
     >
-      <ascii_font text="Setup" font="shade" fg={RGBA.fromHex("#FFFFFF")} />
+      <ascii_font text="Ces's Setup" font="shade" fg={RGBA.fromHex("#FFFFFF")} />
+      <box marginTop={2} />
       <text
         content="Welcome! This tool helps you install your dev environment."
         fg="#BBBBBB"

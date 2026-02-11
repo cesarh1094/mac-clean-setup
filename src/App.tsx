@@ -355,7 +355,7 @@ export default function App() {
 
     if (name === "escape" || name === "q") {
       renderer.destroy();
-      return;
+      process.exit(0);
     }
 
     if (screen() === "select") {
