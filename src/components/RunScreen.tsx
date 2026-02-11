@@ -1,6 +1,7 @@
 import type { Accessor, Component } from "solid-js";
 import { For } from "solid-js";
 import { useTerminalDimensions } from "@opentui/solid";
+import { theme } from "../theme";
 
 import Footer from "./Footer";
 import type { LogEntry, Step } from "../types";
@@ -23,7 +24,8 @@ const RunScreen: Component<RunScreenProps> = (props) => {
       <box
         width={isNarrow() ? "100%" : sidebarWidth()}
         height={isNarrow() ? 10 : "100%"}
-        borderStyle="double"
+        borderStyle="rounded"
+        borderColor={theme.highlightHigh}
         title="Selected Steps"
         padding={1}
       >
@@ -35,12 +37,12 @@ const RunScreen: Component<RunScreenProps> = (props) => {
           {(step) => {
             const color =
               step.status === "ok"
-                ? "#00FF00"
+                ? theme.foam
                 : step.status === "fail"
-                ? "#FF5555"
+                ? theme.love
                 : step.status === "running"
-                ? "#00FFFF"
-                : "#CCCCCC";
+                ? theme.iris
+                : theme.subtle;
             const label = `${step.label}${
               step.durationMs ? ` (${Math.round(step.durationMs / 1000)}s)` : ""
             }`;
@@ -51,7 +53,8 @@ const RunScreen: Component<RunScreenProps> = (props) => {
       <box
         flexGrow={1}
         height="100%"
-        borderStyle="double"
+        borderStyle="rounded"
+        borderColor={theme.highlightHigh}
         title="Logs"
         padding={1}
       >

@@ -1,5 +1,6 @@
 import type { Accessor, Component } from "solid-js";
 import { For } from "solid-js";
+import { theme } from "../theme";
 
 import Footer from "./Footer";
 import type { Step } from "../types";
@@ -17,7 +18,8 @@ const SelectScreen: Component<SelectScreenProps> = (props) => (
   <box flexDirection="column" width="100%" height="100%" flexGrow={1}>
     <box
       flexGrow={1}
-      borderStyle="double"
+      borderStyle="rounded"
+      borderColor={theme.highlightHigh}
       title="What would you like to install?"
       padding={1}
     >
@@ -32,10 +34,10 @@ const SelectScreen: Component<SelectScreenProps> = (props) => (
             (step.requiresBrew && !brewSelected() && !props.isBrewReady()) ||
             isCompleted();
           const color = () => {
-            if (isDisabled()) return "#777777";
-            if (isCursor()) return "#00FFFF";
-            if (isSelected()) return "#FFFFFF";
-            return "#CCCCCC";
+            if (isDisabled()) return theme.muted;
+            if (isCursor()) return theme.foam;
+            if (isSelected()) return theme.text;
+            return theme.subtle;
           };
           const label = () => {
             const base = `${isSelected() ? "[x]" : "[ ]"} ${

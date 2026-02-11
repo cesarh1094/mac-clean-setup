@@ -1,6 +1,7 @@
 import type { Accessor, Component } from "solid-js";
 import { For } from "solid-js";
 import { useTerminalDimensions } from "@opentui/solid";
+import { theme } from "../theme";
 
 import Footer from "./Footer";
 import type { Step } from "../types";
@@ -23,7 +24,8 @@ const SummaryScreen: Component<SummaryScreenProps> = (props) => {
       <box
         width={isNarrow() ? "100%" : sidebarWidth()}
         height={isNarrow() ? 10 : "100%"}
-        borderStyle="double"
+        borderStyle="rounded"
+        borderColor={theme.highlightHigh}
         title="Results"
         padding={1}
       >
@@ -35,10 +37,10 @@ const SummaryScreen: Component<SummaryScreenProps> = (props) => {
           {(step) => {
             const statusColor =
               step.status === "ok"
-                ? "#00FF00"
+                ? theme.foam
                 : step.status === "fail"
-                ? "#FF5555"
-                : "#CCCCCC";
+                ? theme.love
+                : theme.subtle;
             const seconds = step.durationMs
               ? Math.max(1, Math.round(step.durationMs / 1000))
               : undefined;
@@ -50,7 +52,8 @@ const SummaryScreen: Component<SummaryScreenProps> = (props) => {
       <box
         flexGrow={1}
         height="100%"
-        borderStyle="double"
+        borderStyle="rounded"
+        borderColor={theme.highlightHigh}
         title="Next Steps"
         padding={1}
       >
@@ -60,7 +63,7 @@ const SummaryScreen: Component<SummaryScreenProps> = (props) => {
               ? "Completed installers will be skipped next time. Press Enter to go back."
               : "Press Enter to go back."
           }
-          fg="#BBBBBB"
+          fg={theme.subtle}
         />
         <box marginTop={1} flexDirection="column" gap={1}>
           <text
@@ -69,7 +72,7 @@ const SummaryScreen: Component<SummaryScreenProps> = (props) => {
                 ? [...props.completed()].join(", ")
                 : "Homebrew"
             }`}
-            fg="#66FF66"
+            fg={theme.foam}
           />
           <text
             content={`Failed: ${
@@ -79,7 +82,7 @@ const SummaryScreen: Component<SummaryScreenProps> = (props) => {
                 .map((step) => step.label)
                 .join(", ") || "None"
             }`}
-            fg="#FF7777"
+            fg={theme.love}
           />
         </box>
       </box>

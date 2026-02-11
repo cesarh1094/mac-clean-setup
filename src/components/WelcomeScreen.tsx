@@ -1,4 +1,5 @@
 import type { Component } from "solid-js";
+import { theme } from "../theme";
 
 import Footer from "./Footer";
 
@@ -15,15 +16,15 @@ const WelcomeScreen: Component<WelcomeScreenProps> = (props) => (
       justifyContent="center"
       flexGrow={1}
     >
-      <ascii_font text="Ces's Setup" font="shade" color="#FFFFFF" />
+      <ascii_font text="Ces's Setup" font="shade" color={theme.iris} />
       <box marginTop={2} />
       <text
         content="Welcome! This tool helps you install your dev environment."
-        fg="#BBBBBB"
+        fg={theme.subtle}
       />
       <text
         content="Press Enter to choose what to install, or q to quit."
-        fg="#888888"
+        fg={theme.muted}
       />
     </box>
     <Footer content={props.footer} marginTop={2} />
