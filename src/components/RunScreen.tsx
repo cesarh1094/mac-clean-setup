@@ -1,6 +1,6 @@
 import type { Accessor, Component } from "solid-js";
-import { createMemo, createSignal, For, onCleanup } from "solid-js";
-import { useTerminalDimensions } from "@opentui/solid";
+import { createEffect, createMemo, createSignal, For, onCleanup } from "solid-js";
+import { useTerminalDimensions, useTimeline } from "@opentui/solid";
 import { theme } from "../theme";
 
 import Footer from "./Footer";
@@ -61,6 +61,28 @@ const RunScreen: Component<RunScreenProps> = (props) => {
     return theme.muted;
   });
 
+  const BAR_WIDTH = 40;
+  const [barFill, setBarFill] = createSignal(0);
+  const timeline = useTimeline();
+
+  createEffect(() => {
+    const total = activeSteps().length;
+    const done = completedCount();
+    const target = total > 0 ? Math.round((done / total) * BAR_WIDTH) : 0;
+
+    timeline.add(
+      { value: barFill() },
+      {
+        value: target,
+        duration: 300,
+        ease: "outQuad",
+        onUpdate: (anim: { targets: { value: number }[] }) => {
+          setBarFill(Math.round(anim.targets[0]?.value ?? 0));
+        },
+      },
+    );
+  });
+
   const statusIcon = (step: Step) => {
     switch (step.status) {
       case "ok":
@@ -89,8 +111,12 @@ const RunScreen: Component<RunScreenProps> = (props) => {
 
   return (
     <box flexDirection="column" width="100%" height="100%" flexGrow={1}>
-      <box marginBottom={1}>
+      <box marginBottom={1} flexDirection="column" gap={0}>
         <text content={progressText()} fg={progressColor()} />
+        <box flexDirection="row" width={BAR_WIDTH} height={1}>
+          <box width={barFill()} height={1} backgroundColor={theme.iris} />
+          <box flexGrow={1} height={1} backgroundColor={theme.highlightMed} />
+        </box>
       </box>
       <box
         flexGrow={1}
@@ -124,7 +150,22 @@ const RunScreen: Component<RunScreenProps> = (props) => {
           title="Logs"
           padding={1}
         >
-          <scrollbox height="100%" width="100%" padding={1} focused stickyScroll>
+          <scrollbox
+            height="100%"
+            width="100%"
+            padding={1}
+            focused={true}
+            stickyScroll={true}
+            style={{
+              scrollbarOptions: {
+                showArrows: false,
+                trackOptions: {
+                  foregroundColor: theme.iris,
+                  backgroundColor: theme.highlightMed,
+                },
+              },
+            }}
+          >
             <For each={props.logs()}>
               {(entry) => {
                 if (entry.separator) {

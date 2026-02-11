@@ -1,5 +1,5 @@
 import type { Accessor, Component } from "solid-js";
-import { createMemo, For } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
 import { useTerminalDimensions } from "@opentui/solid";
 import { theme } from "../theme";
 
@@ -81,19 +81,20 @@ const SummaryScreen: Component<SummaryScreenProps> = (props) => {
           justifyContent="center"
           alignItems="center"
         >
-          {hasFailed() ? (
-            <>
-              <text content="Some steps failed." fg={theme.love} />
-              <box marginTop={1}>
-                <text
-                  content="Press r on the select screen to retry failed steps."
-                  fg={theme.gold}
-                />
-              </box>
-            </>
-          ) : (
-            <text content="All steps completed successfully!" fg={theme.foam} />
-          )}
+          <Show
+            when={hasFailed()}
+            fallback={
+              <text content="All steps completed successfully!" fg={theme.foam} />
+            }
+          >
+            <text content="Some steps failed." fg={theme.love} />
+            <box marginTop={1}>
+              <text
+                content="Press r on the select screen to retry failed steps."
+                fg={theme.gold}
+              />
+            </box>
+          </Show>
           <box marginTop={2}>
             <text content="Press Enter to go back." fg={theme.muted} />
           </box>

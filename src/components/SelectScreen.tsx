@@ -53,7 +53,21 @@ const SelectScreen: Component<SelectScreenProps> = (props) => {
           content={`${selectedCount()} of ${totalCount()} selected`}
           fg={theme.subtle}
         />
-        <box marginTop={1} flexDirection="column">
+        <scrollbox
+          marginTop={1}
+          flexGrow={1}
+          width="100%"
+          focused={true}
+          style={{
+            scrollbarOptions: {
+              showArrows: false,
+              trackOptions: {
+                foregroundColor: theme.iris,
+                backgroundColor: theme.highlightMed,
+              },
+            },
+          }}
+        >
           <For each={rows()}>
             {(row) => {
               if (row.type === "header") {
@@ -110,7 +124,7 @@ const SelectScreen: Component<SelectScreenProps> = (props) => {
               );
             }}
           </For>
-        </box>
+        </scrollbox>
       </box>
       <Footer hints={props.hints} marginTop={1} />
     </box>
