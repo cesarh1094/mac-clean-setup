@@ -375,12 +375,19 @@ export default function App() {
     setSelected(new Set(ids.length ? ids : ["brew"]));
   }
 
+  function quit() {
+    renderer.destroy();
+    process.exit(0);
+  }
+
   useKeyboard((key) => {
     const name = String(key.name || "").toLowerCase();
 
-    if (name === "escape" || name === "q") {
-      renderer.destroy();
-      process.exit(0);
+    if (key.ctrl && name === "c") return quit();
+    if (name === "escape" || name === "q") return quit();
+
+    if (name === "c" && !key.ctrl) {
+      renderer.console.toggle();
     }
 
     if (screen() === "select") {
@@ -410,10 +417,6 @@ export default function App() {
       if (name === "r") {
         retryFailed();
       }
-    }
-
-    if (name === "c") {
-      renderer.console.toggle();
     }
 
     if (name === "return" || name === "enter") {
