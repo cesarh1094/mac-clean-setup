@@ -18,9 +18,11 @@ const WelcomeScreen: Component<WelcomeScreenProps> = (props) => (
       flexGrow={1}
     >
       <ascii_font text="Ces's Setup" font="shade" color={theme.iris} />
-      <box marginTop={2} />
+      <box marginTop={1} />
+      <text content="v0.0.1" fg={theme.muted} />
+      <box marginTop={1} />
       <text
-        content="Welcome! This tool helps you install your dev environment."
+        content="Interactive macOS dev environment installer"
         fg={theme.subtle}
       />
       <text
