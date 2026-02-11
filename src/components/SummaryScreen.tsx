@@ -1,5 +1,6 @@
 import type { Accessor, Component } from "solid-js";
 import { For } from "solid-js";
+import { useTerminalDimensions } from "@opentui/solid";
 
 import Footer from "./Footer";
 import type { Step } from "../types";
@@ -11,12 +12,17 @@ type SummaryScreenProps = {
   footer: string;
 };
 
-const SummaryScreen: Component<SummaryScreenProps> = (props) => (
+const SummaryScreen: Component<SummaryScreenProps> = (props) => {
+  const dims = useTerminalDimensions();
+  const isNarrow = () => dims().width < 60;
+  const sidebarWidth = () => (dims().width < 100 ? 25 : 40);
+
+  return (
   <box flexDirection="column" width="100%" height="100%" flexGrow={1}>
-    <box flexGrow={1} flexDirection="row" width="100%" gap={1}>
+    <box flexGrow={1} flexDirection={isNarrow() ? "column" : "row"} width="100%" gap={1}>
       <box
-        width={40}
-        height="100%"
+        width={isNarrow() ? "100%" : sidebarWidth()}
+        height={isNarrow() ? 10 : "100%"}
         borderStyle="double"
         title="Results"
         padding={1}
@@ -80,6 +86,7 @@ const SummaryScreen: Component<SummaryScreenProps> = (props) => (
     </box>
     <Footer content={props.footer} marginTop={1} />
   </box>
-);
+  );
+};
 
 export default SummaryScreen;

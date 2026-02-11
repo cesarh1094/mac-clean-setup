@@ -1,4 +1,5 @@
 import type { Component } from "solid-js";
+import { RGBA } from "@opentui/core";
 
 import Footer from "./Footer";
 
@@ -15,7 +16,7 @@ const WelcomeScreen: Component<WelcomeScreenProps> = (props) => (
       justifyContent="center"
       flexGrow={1}
     >
-      <text content="Machine Setup TUI" fg="#FFFFFF" />
+      <ascii_font text="Setup" font="shade" fg={RGBA.fromHex("#FFFFFF")} />
       <text
         content="Welcome! This tool helps you install your dev environment."
         fg="#BBBBBB"

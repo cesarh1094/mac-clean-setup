@@ -1,4 +1,4 @@
-import { batch, createMemo, createSignal } from "solid-js";
+import { batch, createMemo, createSignal, Match, Switch } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { useKeyboard, useRenderer } from "@opentui/solid";
 import { spawn } from "node:child_process";
@@ -423,33 +423,37 @@ export default function App() {
 
   return (
     <ScreenLayout>
-      {screen() === "welcome" && <WelcomeScreen footer={currentFooter()} />}
-      {screen() === "select" && (
-        <SelectScreen
-          steps={steps}
-          cursorIdx={cursorIdx}
-          selected={selected}
-          isBrewReady={isBrewReady}
-          completed={completedAccessor}
-          footer={currentFooter()}
-        />
-      )}
-      {screen() === "run" && (
-        <RunScreen
-          steps={steps}
-          activeRunIds={activeRunIds}
-          logs={logs}
-          footer={currentFooter()}
-        />
-      )}
-      {screen() === "summary" && (
-        <SummaryScreen
-          steps={steps}
-          lastRunIds={lastRunIds}
-          completed={completedAccessor}
-          footer={currentFooter()}
-        />
-      )}
+      <Switch>
+        <Match when={screen() === "welcome"}>
+          <WelcomeScreen footer={currentFooter()} />
+        </Match>
+        <Match when={screen() === "select"}>
+          <SelectScreen
+            steps={steps}
+            cursorIdx={cursorIdx}
+            selected={selected}
+            isBrewReady={isBrewReady}
+            completed={completedAccessor}
+            footer={currentFooter()}
+          />
+        </Match>
+        <Match when={screen() === "run"}>
+          <RunScreen
+            steps={steps}
+            activeRunIds={activeRunIds}
+            logs={logs}
+            footer={currentFooter()}
+          />
+        </Match>
+        <Match when={screen() === "summary"}>
+          <SummaryScreen
+            steps={steps}
+            lastRunIds={lastRunIds}
+            completed={completedAccessor}
+            footer={currentFooter()}
+          />
+        </Match>
+      </Switch>
     </ScreenLayout>
   );
 }
