@@ -1,7 +1,6 @@
-import { batch, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { batch, createMemo, createSignal } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import { getKeyHandler } from "@opentui/core";
-import { useRenderer } from "@opentui/solid";
+import { useKeyboard, useRenderer } from "@opentui/solid";
 import { spawn } from "node:child_process";
 import path from "node:path";
 
@@ -13,7 +12,6 @@ import SummaryScreen from "./components/SummaryScreen";
 import { hydrateLogEntry } from "./utils/logging";
 
 import type { AppStore, LogEntry, Screen, Step, StepStatus } from "./types";
-import type { ParsedKey } from "@opentui/core";
 
 const repoRoot = process.cwd();
 const base = (p: string) => path.join(repoRoot, p);
@@ -352,76 +350,56 @@ export default function App() {
     setSelected(new Set(ids.length ? ids : ["brew"]));
   }
 
-  onMount(() => {
-    const keys = getKeyHandler();
+  useKeyboard((key) => {
+    const name = String(key.name || "").toLowerCase();
 
-    const keyListener = (key: ParsedKey) => {
-      const name = String(key.name || "").toLowerCase();
-      if (key.ctrl && name === "c") {
-        process.exit(0);
+    if (name === "escape" || name === "q") {
+      renderer.destroy();
+      return;
+    }
+
+    if (screen() === "select") {
+      if (name === "up") {
+        setCursorIdx((i) => Math.max(0, i - 1));
       }
 
-      if (name === "escape" || name === "q") {
-        process.exit(0);
+      if (name === "down") {
+        setCursorIdx((i) => Math.min(steps().length - 1, i + 1));
       }
 
-      if (screen() === "select") {
-        if (name === "up") {
-          setCursorIdx((i) => Math.max(0, i - 1));
-        }
+      if (name === "space") {
+        const current = steps()[cursorIdx()];
 
-        if (name === "down") {
-          setCursorIdx((i) => Math.min(steps().length - 1, i + 1));
-        }
-
-        if (name === "space") {
-          const current = steps()[cursorIdx()];
-
-          if (current) {
-            toggleSelection(current.id);
-          }
-        }
-
-        if (name === "a") {
-          selectAll();
-        }
-        if (name === "n") {
-          clearSelection();
-        }
-
-        if (name === "r") {
-          retryFailed();
+        if (current) {
+          toggleSelection(current.id);
         }
       }
 
-      if (name === "c") {
-        renderer.console.toggle();
+      if (name === "a") {
+        selectAll();
+      }
+      if (name === "n") {
+        clearSelection();
       }
 
-      if (name === "return" || name === "enter") {
-        if (screen() === "welcome") {
-          setScreen("select");
-        } else if (screen() === "select") {
-          runSelectedInOrder();
-        } else if (screen() === "summary") {
-          setScreen("welcome");
-        }
+      if (name === "r") {
+        retryFailed();
       }
-    };
+    }
 
-    (
-      keys as unknown as {
-        on(event: "keypress", listener: (key: ParsedKey) => void): void;
+    if (name === "c") {
+      renderer.console.toggle();
+    }
+
+    if (name === "return" || name === "enter") {
+      if (screen() === "welcome") {
+        setScreen("select");
+      } else if (screen() === "select") {
+        runSelectedInOrder();
+      } else if (screen() === "summary") {
+        setScreen("welcome");
       }
-    ).on("keypress", keyListener);
-
-    onCleanup(() => {
-      (
-        keys as unknown as {
-          off(event: "keypress", listener: (key: ParsedKey) => void): void;
-        }
-      ).off("keypress", keyListener);
-    });
+    }
   });
 
   const footerWelcome = () => "Enter start  • c console  • q/Esc quit";
