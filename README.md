@@ -7,8 +7,32 @@ Automated macOS development environment setup using Homebrew and shell scripts w
 ```bash
 git clone <this-repo>
 cd machine-setup
-./setup.sh
+bash scripts/setup.sh
 ```
+
+## TUI Runner (SolidJS + OpenTUI)
+
+Interactive terminal UI to run installers step-by-step with live logs.
+
+### Install deps (Bun required for the TUI)
+```bash
+npm install
+```
+
+### Run the TUI
+```bash
+npm run start      # launch the TUI once
+npm run dev        # launch the TUI in watch mode (auto-restart)
+```
+
+### Keybindings
+- **Enter**: run selected steps (or all if none selected)
+- **Space**: toggle selection
+- **a**: select all
+- **n**: clear selection
+- **r**: select failed steps
+- **q / Esc / Ctrl+C**: quit
+- **c**: toggle console overlay
 
 ## Installation Architecture
 
@@ -43,9 +67,9 @@ The `setup.sh` script executes all installation scripts in optimized dependency 
 
 Run any script independently:
 ```bash
-./go.sh          # Install just Go
-./ghostty.sh     # Install just Ghostty
-./neovim.sh      # Install Neovim ecosystem
+bash scripts/go.sh          # Install just Go
+bash scripts/ghostty.sh     # Install just Ghostty
+bash scripts/neovim.sh      # Install Neovim ecosystem
 ```
 
 ## Script Features
@@ -74,9 +98,14 @@ All installation scripts follow standardized patterns:
 
 ```
 machine-setup/
-├── setup.sh              # Main orchestration script
-├── colors.sh            # Shared logging functions
-├── AGENTS.md            # Guidelines for AI agents
-├── README.md            # This documentation
-└── [tool-name].sh       # Individual installation scripts
+├── scripts/               # All Bash scripts
+│   ├── setup.sh           # Main orchestration script (path-safe)
+│   ├── colors.sh          # Shared logging functions
+│   └── *.sh               # Individual installation scripts
+├── AGENTS.md              # Guidelines for AI agents
+├── README.md              # This documentation
+├── package.json           # Scripts (`start`, `dev`) and dependencies
+├── tsconfig.json          # TypeScript config (ESNext, bundler mode, Node types)
+├── index.tsx              # TUI entrypoint
+└── src/                   # TUI sources (components, store, utils)
 ```

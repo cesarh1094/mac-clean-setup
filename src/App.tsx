@@ -1,0 +1,556 @@
+import { batch, createMemo, createSignal, Match, Switch } from "solid-js";
+import { createStore, produce } from "solid-js/store";
+import { useKeyboard, useRenderer } from "@opentui/solid";
+import { spawn, type ChildProcess } from "node:child_process";
+import path from "node:path";
+
+import ScreenLayout from "./components/ScreenLayout";
+import WelcomeScreen from "./components/WelcomeScreen";
+import SelectScreen from "./components/SelectScreen";
+import RunScreen from "./components/RunScreen";
+import SummaryScreen from "./components/SummaryScreen";
+import { hydrateLogEntries } from "./utils/logging";
+
+import type { AppStore, KeyHint, LogEntry, Screen, Step, StepStatus } from "./types";
+
+const repoRoot = process.cwd();
+const base = (p: string) => path.join(repoRoot, p);
+const initialSteps: Step[] = [
+  {
+    id: "brew",
+    label: "Homebrew",
+    script: base("scripts/brew.sh"),
+    status: "idle",
+    category: "Foundation",
+  },
+  {
+    id: "nvm",
+    label: "NVM",
+    script: base("scripts/nvm.sh"),
+    status: "idle",
+    category: "Runtimes",
+  },
+  {
+    id: "node",
+    label: "Node.js",
+    script: base("scripts/node.sh"),
+    status: "idle",
+    category: "Runtimes",
+  },
+  {
+    id: "bun",
+    label: "Bun",
+    script: base("scripts/bun.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "Runtimes",
+  },
+  {
+    id: "go",
+    label: "Go",
+    script: base("scripts/go.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "Runtimes",
+  },
+  {
+    id: "karabiner",
+    label: "Karabiner Elements",
+    script: base("scripts/karabiner-elements.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "Productivity",
+  },
+  {
+    id: "raycast",
+    label: "Raycast",
+    script: base("scripts/raycast.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "Productivity",
+  },
+  {
+    id: "ghostty",
+    label: "Ghostty",
+    script: base("scripts/ghostty.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "Terminal & Editors",
+  },
+  {
+    id: "cursor",
+    label: "Cursor",
+    script: base("scripts/cursor.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "Terminal & Editors",
+  },
+  {
+    id: "neovim",
+    label: "Neovim",
+    script: base("scripts/neovim.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "Terminal & Editors",
+  },
+  {
+    id: "zellij",
+    label: "Zellij",
+    script: base("scripts/zellij.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "Terminal & Editors",
+  },
+  {
+    id: "gh",
+    label: "GitHub CLI",
+    script: base("scripts/github-cli.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
+    id: "fzf",
+    label: "fzf",
+    script: base("scripts/fzf.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
+    id: "lazygit",
+    label: "lazygit",
+    script: base("scripts/lazygit.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
+    id: "ripgrep",
+    label: "ripgrep",
+    script: base("scripts/ripgrep.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
+    id: "fd",
+    label: "fd",
+    script: base("scripts/fd.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
+    id: "starship",
+    label: "Starship",
+    script: base("scripts/starship.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "CLI Tools",
+  },
+  {
+    id: "claude",
+    label: "Claude Code",
+    script: base("scripts/claude-code.sh"),
+    status: "idle",
+    category: "AI Tools",
+  },
+  {
+    id: "opencode",
+    label: "OpenCode TUI",
+    script: base("scripts/open-code.sh"),
+    status: "idle",
+    requiresBrew: true,
+    category: "AI Tools",
+  },
+  {
+    id: "cursor-agent",
+    label: "Cursor Agent",
+    script: base("scripts/cursor-agent.sh"),
+    status: "idle",
+    category: "AI Tools",
+  },
+];
+
+export default function App() {
+  const renderer = useRenderer();
+
+  const [state, setState] = createStore<AppStore>({
+    steps: initialSteps,
+    completedIds: [],
+    lastRunIds: [],
+    activeRunIds: [],
+  });
+
+  const steps = () => state.steps;
+  const activeRunIds = () => state.activeRunIds;
+  const lastRunIds = () => state.lastRunIds;
+  const completedSet = () => new Set(state.completedIds);
+
+  const completedAccessor = () => completedSet();
+
+  const updateStep = (id: string, updater: (step: Step) => void) => {
+    setState(
+      "steps",
+      (step) => step.id === id,
+      produce<Step>((step) => {
+        updater(step);
+      })
+    );
+  };
+
+  const [screen, setScreen] = createSignal<Screen>("welcome");
+  const [cursorIdx, setCursorIdx] = createSignal(0);
+  const [selected, setSelected] = createSignal<Set<string>>(new Set(["brew"]));
+  const [logs, setLogs] = createSignal<LogEntry[]>([]);
+  let activeChild: ChildProcess | null = null;
+  const isBrewReady = () =>
+    steps().find((s) => s.id === "brew")?.status === "ok";
+
+  function appendLog(rawLine: string) {
+    const isFirst = logs().length === 0;
+    const entries = hydrateLogEntries(rawLine, isFirst);
+
+    if (entries.length === 0) return;
+
+    setLogs((prev) => {
+      const next = [...prev, ...entries];
+      while (next.length > 300) next.shift();
+      return next;
+    });
+
+    if (/\[ERROR\]/.test(rawLine)) {
+      console.error(rawLine);
+    } else if (/\[WARNING\]/.test(rawLine)) {
+      console.warn(rawLine);
+    } else if (/\[SUCCESS\]/.test(rawLine)) {
+      console.info(rawLine);
+    } else {
+      console.log(rawLine);
+    }
+  }
+
+  async function runScript(absPath: string): Promise<number> {
+    return new Promise((resolve) => {
+      const child = spawn("/bin/bash", [absPath], {
+        cwd: repoRoot,
+        env: {
+          ...process.env,
+          FORCE_COLOR: "1",
+          TERM: "xterm-256color",
+          COLORTERM: "truecolor",
+        },
+      });
+      child.stdout.on("data", (d) => {
+        const chunk = String(d);
+        for (const part of chunk.split(/\r?\n/)) {
+          if (part.length === 0) {
+            continue;
+          }
+          appendLog(part);
+        }
+      });
+      child.stderr.on("data", (d) => {
+        const chunk = String(d);
+        for (const part of chunk.split(/\r?\n/)) {
+          if (part.length === 0) {
+            continue;
+          }
+
+          appendLog(part);
+        }
+      });
+      activeChild = child;
+      child.on("close", (code) => {
+        activeChild = null;
+        resolve(code ?? 1);
+      });
+      child.on("error", (err) => {
+        activeChild = null;
+        appendLog(`[ERROR] ${String(err)}`);
+        resolve(1);
+      });
+    });
+  }
+
+  async function runSelectedInOrder() {
+    if (activeRunIds().length) {
+      return;
+    }
+
+    setScreen("run");
+
+    const ids = selected().size ? [...selected()] : steps().map((s) => s.id);
+    const brewSelected = selected().has("brew");
+    const brewReady = isBrewReady();
+    const order = steps()
+      .filter((s) => ids.includes(s.id))
+      .filter((s) => !s.requiresBrew || brewSelected || brewReady);
+
+    setState(
+      "activeRunIds",
+      order.map((s) => s.id)
+    );
+
+    const executedIds: string[] = [];
+
+    for (const step of order) {
+      executedIds.push(step.id);
+      const start = Date.now();
+
+      updateStep(step.id, (s) => {
+        s.status = "running";
+        s.durationMs = undefined;
+      });
+
+      const code = await runScript(step.script);
+      const durationMs = Date.now() - start;
+      const status: StepStatus = code === 0 ? "ok" : "fail";
+
+      updateStep(step.id, (s) => {
+        s.status = status;
+        s.durationMs = durationMs;
+      });
+
+      if (code !== 0) {
+        break;
+      }
+    }
+
+    setState("lastRunIds", executedIds);
+
+    const snapshot = steps();
+    const successfulIds = snapshot
+      .filter(
+        (s) =>
+          executedIds.includes(s.id) && s.status === "ok" && s.id !== "brew"
+      )
+      .map((s) => s.id);
+
+    const failedIds = snapshot
+      .filter((s) => executedIds.includes(s.id) && s.status === "fail")
+      .map((s) => s.id);
+
+    batch(() => {
+      const updatedCompleted = new Set(completedSet());
+
+      for (const id of successfulIds) {
+        updatedCompleted.add(id);
+      }
+
+      setState("completedIds", Array.from(updatedCompleted));
+
+      const nextSelected = new Set<string>(["brew"]);
+
+      for (const id of failedIds) {
+        if (!updatedCompleted.has(id)) {
+          nextSelected.add(id);
+        }
+      }
+
+      setSelected(nextSelected);
+      setCursorIdx(0);
+      setState("activeRunIds", []);
+      setScreen("summary");
+    });
+  }
+
+  function toggleSelection(id: string) {
+    const brewSelected = selected().has("brew");
+    const step = steps().find((s) => s.id === id);
+    const brewReady = isBrewReady();
+    const isDisabled = step?.requiresBrew && !brewSelected && !brewReady;
+
+    if (id !== "brew" && isDisabled) {
+      appendLog(
+        "[WARNING] Step requires Homebrew. Select or install 'Homebrew' first."
+      );
+      return;
+    }
+
+    if (step && step.id !== "brew" && completedSet().has(id)) {
+      appendLog("[WARNING] Step already completed. Restart TUI to rerun.");
+      return;
+    }
+
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+
+      // If Homebrew got deselected, drop all brew-dependent selections
+      if (!next.has("brew")) {
+        for (const s of steps()) {
+          if (s.requiresBrew) next.delete(s.id);
+        }
+      }
+
+      return next;
+    });
+  }
+
+  function selectAll() {
+    const brewSelected = selected().has("brew");
+    const brewReady = isBrewReady();
+    const completed = completedSet();
+    const ids = steps()
+      .filter((s) => !s.requiresBrew || brewSelected || brewReady)
+      .map((s) => s.id)
+      .filter((id) => id === "brew" || !completed.has(id));
+
+    setSelected(new Set(ids));
+  }
+
+  function clearSelection() {
+    setSelected(new Set(["brew"]));
+  }
+
+  function retryFailed() {
+    const brewReady = isBrewReady();
+    const completed = completedSet();
+    const ids = steps()
+      .filter((s) => s.status === "fail")
+      .map((s) => s.id)
+      .filter(
+        (id) =>
+          id === "brew" ||
+          (!completed.has(id) &&
+            (!steps().find((s) => s.id === id)?.requiresBrew || brewReady))
+      );
+
+    setSelected(new Set(ids.length ? ids : ["brew"]));
+  }
+
+  function quit() {
+    if (activeChild) {
+      activeChild.kill("SIGTERM");
+      activeChild = null;
+    }
+    renderer.destroy();
+    process.exit(0);
+  }
+
+  useKeyboard((key) => {
+    const name = String(key.name || "").toLowerCase();
+
+    if (key.ctrl && name === "c") return quit();
+    if (name === "escape" || name === "q") return quit();
+
+    if (name === "c" && !key.ctrl) {
+      renderer.console.toggle();
+    }
+
+    if (screen() === "select") {
+      if (name === "up" || name === "k") {
+        setCursorIdx((i) => Math.max(0, i - 1));
+      }
+
+      if (name === "down" || name === "j") {
+        setCursorIdx((i) => Math.min(steps().length - 1, i + 1));
+      }
+
+      if (name === "space") {
+        const current = steps()[cursorIdx()];
+
+        if (current) {
+          toggleSelection(current.id);
+        }
+      }
+
+      if (name === "a") {
+        selectAll();
+      }
+      if (name === "n") {
+        clearSelection();
+      }
+
+      if (name === "r") {
+        retryFailed();
+      }
+    }
+
+    if (name === "return" || name === "enter") {
+      if (screen() === "welcome") {
+        setScreen("select");
+      } else if (screen() === "select") {
+        runSelectedInOrder();
+      } else if (screen() === "summary") {
+        setScreen("welcome");
+      }
+    }
+  });
+
+  const footerWelcome: KeyHint[] = [
+    { key: "Enter", action: "start" },
+    { key: "c", action: "console" },
+    { key: "q", action: "quit" },
+  ];
+  const footerSelect: KeyHint[] = [
+    { key: "↑↓/jk", action: "move" },
+    { key: "Space", action: "select" },
+    { key: "Enter", action: "run" },
+    { key: "a", action: "all" },
+    { key: "n", action: "none" },
+    { key: "r", action: "retry" },
+    { key: "c", action: "console" },
+    { key: "q", action: "quit" },
+  ];
+  const footerRun: KeyHint[] = [
+    { key: "c", action: "console" },
+    { key: "q", action: "quit" },
+  ];
+  const footerSummary: KeyHint[] = [
+    { key: "Enter", action: "home" },
+    { key: "c", action: "console" },
+    { key: "q", action: "quit" },
+  ];
+
+  const currentFooter = createMemo(() => {
+    switch (screen()) {
+      case "welcome":
+        return footerWelcome;
+      case "select":
+        return footerSelect;
+      case "run":
+        return footerRun;
+      case "summary":
+        return footerSummary;
+    }
+  });
+
+  return (
+    <ScreenLayout>
+      <Switch>
+        <Match when={screen() === "welcome"}>
+          <WelcomeScreen hints={currentFooter()} />
+        </Match>
+        <Match when={screen() === "select"}>
+          <SelectScreen
+            steps={steps}
+            cursorIdx={cursorIdx}
+            selected={selected}
+            isBrewReady={isBrewReady}
+            completed={completedAccessor}
+            hints={currentFooter()}
+          />
+        </Match>
+        <Match when={screen() === "run"}>
+          <RunScreen
+            steps={steps}
+            activeRunIds={activeRunIds}
+            logs={logs}
+            hints={currentFooter()}
+          />
+        </Match>
+        <Match when={screen() === "summary"}>
+          <SummaryScreen
+            steps={steps}
+            lastRunIds={lastRunIds}
+            completed={completedAccessor}
+            hints={currentFooter()}
+          />
+        </Match>
+      </Switch>
+    </ScreenLayout>
+  );
+}
