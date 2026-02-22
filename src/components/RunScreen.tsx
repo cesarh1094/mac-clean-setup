@@ -1,6 +1,6 @@
 import type { Accessor, Component } from "solid-js";
-import { createEffect, createMemo, createSignal, For, onCleanup } from "solid-js";
-import { useTerminalDimensions, useTimeline } from "@opentui/solid";
+import { createMemo, createSignal, For, onCleanup } from "solid-js";
+import { useTerminalDimensions } from "@opentui/solid";
 import { theme } from "../theme";
 
 import Footer from "./Footer";
@@ -28,17 +28,16 @@ const RunScreen: Component<RunScreenProps> = (props) => {
 
   const spinner = () => SPINNER_FRAMES[frame()]!;
 
-  const activeSteps = createMemo(() =>
-    props.steps().filter((s) => props.activeRunIds().includes(s.id)),
-  );
+  const activeRunSet = createMemo(() => new Set(props.activeRunIds()));
 
-  const runningStep = createMemo(() =>
-    activeSteps().find((s) => s.status === "running"),
-  );
+  const activeSteps = () =>
+    props.steps().filter((s) => activeRunSet().has(s.id));
 
-  const completedCount = createMemo(
-    () => activeSteps().filter((s) => s.status === "ok" || s.status === "fail").length,
-  );
+  const runningStep = () =>
+    activeSteps().find((s) => s.status === "running");
+
+  const completedCount = () =>
+    activeSteps().filter((s) => s.status === "ok" || s.status === "fail").length;
 
   const progressText = createMemo(() => {
     const running = runningStep();
@@ -52,36 +51,21 @@ const RunScreen: Component<RunScreenProps> = (props) => {
     return `${spinner()} Waiting...`;
   });
 
-  const progressColor = createMemo(() => {
+  const progressColor = () => {
     if (runningStep()) return theme.text;
     const allDone = activeSteps().every(
       (s) => s.status === "ok" || s.status === "fail",
     );
     if (allDone && activeSteps().length > 0) return theme.foam;
     return theme.muted;
-  });
+  };
 
   const BAR_WIDTH = 40;
-  const [barFill, setBarFill] = createSignal(0);
-  const timeline = useTimeline();
-
-  createEffect(() => {
+  const barFill = () => {
     const total = activeSteps().length;
     const done = completedCount();
-    const target = total > 0 ? Math.round((done / total) * BAR_WIDTH) : 0;
-
-    timeline.add(
-      { value: barFill() },
-      {
-        value: target,
-        duration: 300,
-        ease: "outQuad",
-        onUpdate: (anim: { targets: { value: number }[] }) => {
-          setBarFill(Math.round(anim.targets[0]?.value ?? 0));
-        },
-      },
-    );
-  });
+    return total > 0 ? Math.round((done / total) * BAR_WIDTH) : 0;
+  };
 
   const statusIcon = (step: Step) => {
     switch (step.status) {
@@ -134,11 +118,14 @@ const RunScreen: Component<RunScreenProps> = (props) => {
         >
           <For each={activeSteps()}>
             {(step) => {
-              const duration = step.durationMs
-                ? ` (${Math.round(step.durationMs / 1000)}s)`
-                : "";
-              const label = `${statusIcon(step)} ${step.label}${duration}`;
-              return <text content={label} fg={statusColor(step)} />;
+              const duration = () =>
+                step.durationMs
+                  ? ` (${Math.round(step.durationMs / 1000)}s)`
+                  : "";
+              const label = () =>
+                `${statusIcon(step)} ${step.label}${duration()}`;
+              const color = () => statusColor(step);
+              return <text content={label()} fg={color()} />;
             }}
           </For>
         </box>
