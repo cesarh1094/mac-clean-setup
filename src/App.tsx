@@ -15,6 +15,7 @@ import type { AppStore, KeyHint, LogEntry, Screen, Step, StepStatus } from "./ty
 
 const repoRoot = process.cwd();
 const base = (p: string) => path.join(repoRoot, p);
+
 const initialSteps: Step[] = [
   {
     id: "brew",
@@ -262,7 +263,7 @@ export default function App() {
         }
       });
       activeChild = child;
-      child.on("close", (code) => {
+      child.on("exit", (code) => {
         activeChild = null;
         resolve(code ?? 1);
       });
@@ -279,6 +280,7 @@ export default function App() {
       return;
     }
 
+    setLogs([]);
     setScreen("run");
 
     const ids = selected().size ? [...selected()] : steps().map((s) => s.id);
@@ -292,6 +294,13 @@ export default function App() {
       "activeRunIds",
       order.map((s) => s.id)
     );
+
+    for (const step of order) {
+      updateStep(step.id, (s) => {
+        s.status = "idle";
+        s.durationMs = undefined;
+      });
+    }
 
     const executedIds: string[] = [];
 
@@ -473,7 +482,7 @@ export default function App() {
       if (screen() === "welcome") {
         setScreen("select");
       } else if (screen() === "select") {
-        runSelectedInOrder();
+        setTimeout(() => runSelectedInOrder(), 0);
       } else if (screen() === "summary") {
         setScreen("welcome");
       }
